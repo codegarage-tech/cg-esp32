@@ -13,7 +13,7 @@ EspMQTTClient client(
   "157.245.88.4",  // MQTT Broker server ip
   "admin",   // Can be omitted if not needed
   "admin",   // Can be omitted if not needed
-  "TestClient",     // Client name that uniquely identify your device
+  "SmartHome",     // Client name that uniquely identify your device
   1883              // The MQTT port, default to 1883. this line can be omitted
 );
 
@@ -31,18 +31,18 @@ void setup()
 // WARNING : YOU MUST IMPLEMENT IT IF YOU USE EspMQTTClient
 void onConnectionEstablished()
 {
-  // Subscribe to "mytopic/test" and display received message to Serial
-  client.subscribe("mytopic/test", [](const String & payload) {
+  // Subscribe to "/420/69" and display received message to Serial
+  client.subscribe("/420/69", [](const String & payload) {
     Serial.println(payload);
   });
 
-  // Publish a message to "mytopic/test"
-  client.publish("mytopic/test", "This is a message"); // You can activate the retain flag by setting the third parameter to true
+  // Publish a message to "/420/69"
+//  client.publish("/420/69", "This is a message"); // You can activate the retain flag by setting the third parameter to true
 
   // Execute delayed instructions
-  client.executeDelayed(5 * 1000, []() {
-    client.publish("mytopic/test", "This is a message sent 5 seconds later");
-  });
+//  client.executeDelayed(5 * 1000, []() {
+//    client.publish("/420/69", "This is a message sent 5 seconds later");
+//  });
 }
 
 void loop()
