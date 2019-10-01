@@ -2,48 +2,52 @@
 //http://techiesms.com/iot-projects/now-no-need-enter-ssid-name-password-inside-code-esp8266-smart-config/
 //https://www.youtube.com/watch?time_continue=38&v=5D6lkFGPPSw
 
+#include <Arduino.h>
+#include "utils.h"
+
 #ifdef ESP8266
-
-  #include <ESP8266WiFi.h>
-  #include <ESP8266WebServer.h>
-
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 #else // for ESP32
-
-  #include <WiFiClient.h>
-  #include <WebServer.h>
-
+#include <WiFiClient.h>
+#include <WebServer.h>
 #endif
 
-int counter = 0;
+ConfigStore configStore;
 
 void setup() {
-  Serial.begin(115200);
-  /* Set ESP8266 to WiFi Station mode */
-  WiFi.mode(WIFI_STA);
-  /* start SmartConfig */
-  WiFi.beginSmartConfig();
+  PRINT_PORT.begin(115200);
+  // PRINT_PORT.setDebugOutput(true);
 
-  /* Wait for SmartConfig packet from mobile */
-  Serial.println("Waiting for SmartConfig.");
-  while (!WiFi.smartConfigDone()) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("SmartConfig done.");
+  PRINT_PORT.println();
+  PRINT_PORT.println();
+  // PRINT_PORT.print("Firmware version: ");
+  // PRINT_PORT.println(configDefault.version);
 
-  /* Wait for WiFi to connect to AP */
-  Serial.println("Waiting for WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  for (uint8_t t = 5; t > 0; t--) {
+    PRINT_PORT.printf("[Starting up] WAIT %d...\n", t);
+    PRINT_PORT.flush();
+    delay(1000);
   }
-  Serial.println("WiFi Connected.");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
+
+  if (initConfig(configStore)) {
+    connectWiFi(configStore);
+  } else {
+    smartConfig(configStore);
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    PRINT_PORT.print("Local IP: ");
+    PRINT_PORT.println(WiFi.localIP());
+  }
 }
+
 void loop() {
-  counter++;
-  Serial.println("counter: ");
-  Serial.println(counter);
+  // wait for WiFi connection
+  monitorWiFi(configStore);
+  //  if ((configStore.flagWiFiFail == 0) && (millis() % 10000 == 0)) { // Try to update the firmware every ten seconds
+  //    if (checkFirmwareUpdate(configStore)) {
+  //      firmwareUpdate(configStore);
+  //    }
+  //  }
 }
